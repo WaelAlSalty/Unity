@@ -16,13 +16,14 @@ jobs:
         with:
           node-version: 20
 
-      - name: Configurar Projeto e Plugin Unity Ads
+      - name: Configurar Projeto e Estrutura Web
         run: |
           npm init -y
           npm install @capacitor/core @capacitor/cli @capacitor/android
           
           mkdir www
           
+          # Criação automática do index.html com os IDs da Unity
           cat << 'EOF' > www/index.html
           <!DOCTYPE html>
           <html>
@@ -31,26 +32,47 @@ jobs:
               <meta name="viewport" content="width=device-width, initial-scale=1.0">
               <title>Meu Jogo com Unity Ads</title>
               <style>
-                  body { background: #111; color: #fff; text-align: center; font-family: sans-serif; padding-top: 50px; }
+                  body { background: #111; color: #fff; text-align: center; font-family: sans-serif; padding-top: 30px; margin: 0; }
                   button { padding: 15px 30px; font-size: 18px; background: #00FFCC; border: none; font-weight: bold; cursor: pointer; border-radius: 8px; margin-top: 20px; }
+                  
+                  #unity-banner-container {
+                      position: fixed;
+                      bottom: 0;
+                      left: 0;
+                      width: 100%;
+                      height: 50px;
+                      background: #222;
+                      display: flex;
+                      align-items: center;
+                      justify-content: center;
+                      border-top: 1px solid #444;
+                      font-size: 14px;
+                      color: #888;
+                  }
               </style>
           </head>
           <body>
               <h1>Meu Jogo Mobile</h1>
-              <p>Status: <span id="status">Inicializando Ads...</span></p>
-              <button onclick="mostrarAnuncio()">Assistir Anúncio</button>
+              <p>Status: <span id="status">Aguardando Unity Ads...</span></p>
+              <button onclick="mostrarRecompensa()">Assistir Vídeo (Rewarded_Android)</button>
+
+              <div id="unity-banner-container">
+                  [ Banner Unity: Banner_Android ]
+              </div>
 
               <script>
                   const GAME_ID = "6177207";
-                  const PLACEMENT_ID = "Rewarded_Android";
+                  const BANNER_ID = "Banner_Android";
+                  const REWARDED_ID = "Rewarded_Android";
 
                   function initAds() {
-                      document.getElementById("status").innerText = "Unity Ads Pronto!";
+                      document.getElementById("status").innerText = "Unity Ads Inicializado!";
                   }
-                  setTimeout(initAds, 1000);
 
-                  function mostrarAnuncio() {
-                      alert("Disparando Unity Ads (Game ID: " + GAME_ID + ")");
+                  setTimeout(initAds, 1500);
+
+                  function mostrarRecompensa() {
+                      alert("Disparando Anúncio Premiado (" + REWARDED_ID + ") - Game ID: " + GAME_ID);
                   }
               </script>
           </body>
@@ -60,7 +82,13 @@ jobs:
           npx cap init MeuJogo com.exemplo.meujogo --web-dir www
           npx cap add android
 
-          # Adiciona a regra de força para alinhar a versão do Kotlin e evitar conflito de classes duplicadas
+          # Injeta a dependência oficial do Unity Ads SDK no Gradle do Android
+          echo "" >> android/app/build.gradle
+          echo "dependencies {" >> android/app/build.gradle
+          echo "    implementation 'com.unity3d.ads:unity-ads:4.9.2'" >> android/app/build.gradle
+          echo "}" >> android/app/build.gradle
+
+          # Regra para unificar a versão do Kotlin e evitar conflitos de compilação
           echo "" >> android/app/build.gradle
           echo "configurations.all {" >> android/app/build.gradle
           echo "    resolutionStrategy {" >> android/app/build.gradle
@@ -70,7 +98,7 @@ jobs:
           echo "    }" >> android/app/build.gradle
           echo "}" >> android/app/build.gradle
 
-      - name: Configurar JDK (Java)
+      - name: Configurar JDK (Java 21)
         uses: actions/setup-java@v4
         with:
           distribution: 'temurin'
