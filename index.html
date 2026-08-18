@@ -1,0 +1,41 @@
+<!DOCTYPE html>
+<html lang="pt-BR">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0, user-scalable=no">
+    <title>Meu Jogo Simples com Ads</title>
+    <style>
+        body { margin: 0; background: #111; color: #fff; text-align: center; font-family: sans-serif; overflow: hidden; }
+        canvas { background: #222; display: block; margin: 20px auto; border: 2px solid #555; }
+        button { padding: 12px 24px; font-size: 18px; background: #00FFCC; border: none; font-weight: bold; cursor: pointer; border-radius: 8px; }
+    </style>
+</head>
+<body>
+    <h1>Jogo Simples - Teste APK</h1>
+    <canvas id="gameCanvas" width="360" height="360"></canvas>
+    <br>
+    <button onclick="assistirAnuncio()">Assistir Anôncio (Unity Ads / Recompensa)</button>
+
+    <script>
+        const canvas = document.getElementById("gameCanvas");
+        const ctx = canvas.getContext("2d");
+        let x = 50, y = 50, velocidade = 3;
+
+        function atualizar() {
+            ctx.clearRect(0, 0, canvas.width, canvas.height);
+            ctx.fillStyle = "#00FFCC";
+            ctx.fillRect(x, y, 30, 30);
+            
+            x += velocidade;
+            if (x > canvas.width || x < 0) velocidade = -velocidade;
+            requestAnimationFrame(atualizar);
+        }
+        atualizar();
+
+        function assistirAnuncio() {
+            alert("Aqui o SDK do Unity Ads é disparado para exibir o anúncio em vídeo!");
+            // Exemplo de chamada real de integração com SDK Web/Unity Ads placement
+        }
+    </script>
+</body>
+</html>
