@@ -23,7 +23,6 @@ jobs:
           
           mkdir www
           
-          # Criação limpa do index.html usando EOF para evitar problemas de sintaxe
           cat << 'EOF' > www/index.html
           <!DOCTYPE html>
           <html>
@@ -65,7 +64,7 @@ jobs:
         uses: actions/setup-java@v4
         with:
           distribution: 'temurin'
-          java-version: '17'
+          java-version: '21'
 
       - name: Compilar APK de Debug
         run: |
