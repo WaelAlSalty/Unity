@@ -19,14 +19,13 @@ jobs:
       - name: Configurar Projeto e Plugin Unity Ads
         run: |
           npm init -y
-          # Instalando o Capacitor e o plugin oficial para Unity Ads
           npm install @capacitor/core @capacitor/cli @capacitor/android
           
-          # Cria a pasta do app web
           mkdir www
           
-          # Cria o index.html com a chamada real do Unity Ads
-          echo '<!DOCTYPE html>
+          # Criação limpa do index.html usando EOF para evitar problemas de sintaxe
+          cat << 'EOF' > www/index.html
+          <!DOCTYPE html>
           <html>
           <head>
               <meta charset="UTF-8">
@@ -43,10 +42,9 @@ jobs:
               <button onclick="mostrarAnuncio()">Assistir Anúncio</button>
 
               <script>
-                  const GAME_ID = "6177207"; // Cole seu Game ID da Unity aqui
-                  const PLACEMENT_ID = "Rewarded_Android"; // Nome do posicionamento padrão
+                  const GAME_ID = "6177207";
+                  const PLACEMENT_ID = "Rewarded_Android";
 
-                  // Função de Inicialização simulada via ponte nativa
                   function initAds() {
                       document.getElementById("status").innerText = "Unity Ads Pronto!";
                   }
@@ -54,13 +52,12 @@ jobs:
 
                   function mostrarAnuncio() {
                       alert("Disparando Unity Ads (Game ID: " + GAME_ID + ")");
-                      // Aqui o plugin nativo chama o SDK da Unity no Android
                   }
               </script>
           </body>
-          </html>' > www/index.html
+          </html>
+          EOF
 
-          # Inicializa o Capacitor
           npx cap init MeuJogo com.exemplo.meujogo --web-dir www
           npx cap add android
 
