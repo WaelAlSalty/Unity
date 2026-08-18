@@ -60,6 +60,16 @@ jobs:
           npx cap init MeuJogo com.exemplo.meujogo --web-dir www
           npx cap add android
 
+          # Adiciona a regra de força para alinhar a versão do Kotlin e evitar conflito de classes duplicadas
+          echo "" >> android/app/build.gradle
+          echo "configurations.all {" >> android/app/build.gradle
+          echo "    resolutionStrategy {" >> android/app/build.gradle
+          echo "        force 'org.jetbrains.kotlin:kotlin-stdlib:1.8.22'" >> android/app/build.gradle
+          echo "        force 'org.jetbrains.kotlin:kotlin-stdlib-jdk7:1.8.22'" >> android/app/build.gradle
+          echo "        force 'org.jetbrains.kotlin:kotlin-stdlib-jdk8:1.8.22'" >> android/app/build.gradle
+          echo "    }" >> android/app/build.gradle
+          echo "}" >> android/app/build.gradle
+
       - name: Configurar JDK (Java)
         uses: actions/setup-java@v4
         with:
