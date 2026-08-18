@@ -1,40 +1,60 @@
 <!DOCTYPE html>
-<html lang="pt-BR">
+<html>
 <head>
     <meta charset="UTF-8">
-    <meta name="viewport" content="width=device-width, initial-scale=1.0, user-scalable=no">
-    <title>Meu Jogo Simples com Ads</title>
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>Meu Jogo com Unity Ads</title>
     <style>
-        body { margin: 0; background: #111; color: #fff; text-align: center; font-family: sans-serif; overflow: hidden; }
-        canvas { background: #222; display: block; margin: 20px auto; border: 2px solid #555; }
-        button { padding: 12px 24px; font-size: 18px; background: #00FFCC; border: none; font-weight: bold; cursor: pointer; border-radius: 8px; }
+        body { background: #111; color: #fff; text-align: center; font-family: sans-serif; padding-top: 30px; margin: 0; }
+        button { padding: 15px 30px; font-size: 18px; background: #00FFCC; border: none; font-weight: bold; cursor: pointer; border-radius: 8px; margin-top: 20px; }
+        
+        /* Área reservada para o Banner fixo na parte inferior */
+        #unity-banner-container {
+            position: fixed;
+            bottom: 0;
+            left: 0;
+            width: 100%;
+            height: 50px;
+            background: #222;
+            display: flex;
+            align-items: center;
+            justify-content: center;
+            border-top: 1px solid #444;
+            font-size: 14px;
+            color: #888;
+        }
     </style>
 </head>
 <body>
-    <h1>Jogo Simples - Teste APK</h1>
-    <canvas id="gameCanvas" width="360" height="360"></canvas>
-    <br>
-    <button onclick="assistirAnuncio()">Assistir Anôncio (Unity Ads / Recompensa)</button>
+    <h1>Meu Jogo Mobile</h1>
+    <p>Status: <span id="status">Aguardando Unity Ads...</span></p>
+    <button onclick="mostrarRecompensa()">Assistir Vídeo (Recompensa)</button>
+
+    <!-- Espaço visual do Banner -->
+    <div id="unity-banner-container">
+        [ Banner Unity: Banner_Android ]
+    </div>
 
     <script>
-        const canvas = document.getElementById("gameCanvas");
-        const ctx = canvas.getContext("2d");
-        let x = 50, y = 50, velocidade = 3;
+        const GAME_ID = "6177207";
+        const BANNER_ID = "Banner_Android";
+        const REWARDED_ID = "Rewarded_Android";
 
-        function atualizar() {
-            ctx.clearRect(0, 0, canvas.width, canvas.height);
-            ctx.fillStyle = "#00FFCC";
-            ctx.fillRect(x, y, 30, 30);
-            
-            x += velocidade;
-            if (x > canvas.width || x < 0) velocidade = -velocidade;
-            requestAnimationFrame(atualizar);
+        function initAds() {
+            document.getElementById("status").innerText = "Unity Ads Inicializado!";
+            // Aqui o SDK nativo carrega o banner automaticamente na base da tela
+            carregarBanner();
         }
-        atualizar();
 
-        function assistirAnuncio() {
-            alert("Aqui o SDK do Unity Ads é disparado para exibir o anúncio em vídeo!");
-            // Exemplo de chamada real de integração com SDK Web/Unity Ads placement
+        function carregarBanner() {
+            console.log("Carregando Banner ID: " + BANNER_ID);
+            // O plugin nativo chama a função de Banner da Unity
+        }
+
+        setTimeout(initAds, 1500);
+
+        function mostrarRecompensa() {
+            alert("Disparando anúncio premiado do Game ID: " + GAME_ID);
         }
     </script>
 </body>
