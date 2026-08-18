@@ -1,4 +1,4 @@
-name: Build Android APK com Unity Ads
+name: Build Android APK com Unity Ads Real
 
 on:
   push:
@@ -23,7 +23,7 @@ jobs:
           
           mkdir www
           
-          # Criação automática do index.html com os IDs da Unity
+          # Criação do index.html com os botões reais conectados à ponte nativa
           cat << 'EOF' > www/index.html
           <!DOCTYPE html>
           <html>
@@ -33,8 +33,7 @@ jobs:
               <title>Meu Jogo com Unity Ads</title>
               <style>
                   body { background: #111; color: #fff; text-align: center; font-family: sans-serif; padding-top: 30px; margin: 0; }
-                  button { padding: 15px 30px; font-size: 18px; background: #00FFCC; border: none; font-weight: bold; cursor: pointer; border-radius: 8px; margin-top: 20px; }
-                  
+                  button { padding: 15px 30px; font-size: 18px; background: #00FFCC; border: none; font-weight: bold; cursor: pointer; border-radius: 8px; margin-top: 20px; display: block; margin-left: auto; margin-right: auto; }
                   #unity-banner-container {
                       position: fixed;
                       bottom: 0;
@@ -53,26 +52,22 @@ jobs:
           </head>
           <body>
               <h1>Meu Jogo Mobile</h1>
-              <p>Status: <span id="status">Aguardando Unity Ads...</span></p>
-              <button onclick="mostrarRecompensa()">Assistir Vídeo (Rewarded_Android)</button>
+              <p>Status: <span id="status">Inicializando Unity Ads...</span></p>
+              
+              <button onclick="mostrarRecompensa()">Assistir Vídeo (Rewarded)</button>
 
               <div id="unity-banner-container">
                   [ Banner Unity: Banner_Android ]
               </div>
 
               <script>
-                  const GAME_ID = "6177207";
-                  const BANNER_ID = "Banner_Android";
-                  const REWARDED_ID = "Rewarded_Android";
-
-                  function initAds() {
-                      document.getElementById("status").innerText = "Unity Ads Inicializado!";
-                  }
-
-                  setTimeout(initAds, 1500);
-
                   function mostrarRecompensa() {
-                      alert("Disparando Anúncio Premiado (" + REWARDED_ID + ") - Game ID: " + GAME_ID);
+                      document.getElementById("status").innerText = "Carregando Anúncio...";
+                      if (window.AndroidBridge) {
+                          window.AndroidBridge.mostrarRewarded();
+                      } else {
+                          alert("Modo Web/Simulação: Anúncio disparado!");
+                      }
                   }
               </script>
           </body>
@@ -88,7 +83,7 @@ jobs:
           echo "    implementation 'com.unity3d.ads:unity-ads:4.9.2'" >> android/app/build.gradle
           echo "}" >> android/app/build.gradle
 
-          # Regra para unificar a versão do Kotlin e evitar conflitos de compilação
+          # Regra para unificar a versão do Kotlin e evitar conflitos
           echo "" >> android/app/build.gradle
           echo "configurations.all {" >> android/app/build.gradle
           echo "    resolutionStrategy {" >> android/app/build.gradle
@@ -97,6 +92,104 @@ jobs:
           echo "        force 'org.jetbrains.kotlin:kotlin-stdlib-jdk8:1.8.22'" >> android/app/build.gradle
           echo "    }" >> android/app/build.gradle
           echo "}" >> android/app/build.gradle
+
+          # Criação da classe Java Nativa para Inicializar a Unity e lidar com os anúncios
+          mkdir -p android/app/src/main/java/com/exemplo/meujogo/
+          
+          cat << 'EOF' > android/app/src/main/java/com/exemplo/meujogo/MainActivity.java
+          package com.exemplo.meujogo;
+
+          import android.os.Bundle;
+          import android.webkit.JavascriptInterface;
+          import android.webkit.WebView;
+          import android.widget.Toast;
+          
+          import com.getcapacitor.BridgeActivity;
+          import com.unity3d.ads.IUnityAdsInitializationListener;
+          import com.unity3d.ads.IUnityAdsLoadListener;
+          import com.unity3d.ads.IUnityAdsShowListener;
+          import com.unity3d.ads.UnityAds;
+          import com.unity3d.ads.UnityAdsShowOptions;
+
+          public class MainActivity extends BridgeActivity {
+              private String GAME_ID = "6177207";
+              private String REWARDED_ID = "Rewarded_Android";
+              private boolean testMode = true; // True para testes (sem banir conta)
+
+              @Override
+              public void onCreate(Bundle savedInstanceState) {
+                  super.onCreate(savedInstanceState);
+
+                  // Inicializa o SDK da Unity Ads
+                  UnityAds.initialize(getApplicationContext(), GAME_ID, testMode, new IUnityAdsInitializationListener() {
+                      @Override
+                      public void onInitializationComplete() {
+                          carregarRewarded();
+                      }
+
+                      @Override
+                      public void onInitializationFailed(UnityAds.UnityAdsInitializationError error, String message) {
+                          // Tratamento de erro de inicialização se necessário
+                      }
+                  });
+
+                  // Configura a ponte para o JavaScript da página web
+                  this.bridge.getWebView().post(new Runnable() {
+                      @Override
+                      public void run() {
+                          WebView webView = bridge.getWebView();
+                          webView.addJavascriptInterface(new WebAppInterface(), "AndroidBridge");
+                      }
+                  });
+              }
+
+              private void carregarRewarded() {
+                  UnityAds.load(REWARDED_ID, new IUnityAdsLoadListener() {
+                      @Override
+                      public void onUnityAdsAdLoaded(String placementId) {
+                          // Anúncio carregado com sucesso
+                      }
+
+                      @Override
+                      public void onUnityAdsFailedToLoad(String placementId, UnityAds.UnityAdsLoadError error, String message) {
+                          // Falha ao carregar
+                      }
+                  });
+              }
+
+              public class WebAppInterface {
+                  @JavascriptInterface
+                  public void mostrarRewarded() {
+                      runOnUiThread(new Runnable() {
+                          @Override
+                          public void run() {
+                              UnityAds.show(MainActivity.this, REWARDED_ID, new UnityAdsShowOptions(), new IUnityAdsShowListener() {
+                                  @Override
+                                  public void onUnityAdsShowStart(String placementId) {}
+
+                                  @Override
+                                  public void onUnityAdsShowClick(String placementId) {}
+
+                                  @Override
+                                  public void onUnityAdsShowComplete(String placementId, UnityAds.UnityAdsShowCompletionState state) {
+                                      if (state == UnityAds.UnityAdsShowCompletionState.COMPLETED) {
+                                          Toast.makeText(MainActivity.this, "Recompensa Concedida!", Toast.LENGTH_SHORT).show();
+                                      }
+                                      carregarRewarded(); // Recarrega o próximo anúncio
+                                  }
+
+                                  @Override
+                                  public void onUnityAdsShowFailure(String placementId, UnityAds.UnityAdsShowError error, String message) {
+                                      Toast.makeText(MainActivity.this, "Erro ao exibir anúncio", Toast.LENGTH_SHORT).show();
+                                      carregarRewarded();
+                                  }
+                              });
+                          }
+                      });
+                  }
+              }
+          }
+          EOF
 
       - name: Configurar JDK (Java 21)
         uses: actions/setup-java@v4
