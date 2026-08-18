@@ -8,7 +8,6 @@
         body { background: #111; color: #fff; text-align: center; font-family: sans-serif; padding-top: 30px; margin: 0; }
         button { padding: 15px 30px; font-size: 18px; background: #00FFCC; border: none; font-weight: bold; cursor: pointer; border-radius: 8px; margin-top: 20px; }
         
-        /* Área reservada para o Banner fixo na parte inferior */
         #unity-banner-container {
             position: fixed;
             bottom: 0;
@@ -28,9 +27,8 @@
 <body>
     <h1>Meu Jogo Mobile</h1>
     <p>Status: <span id="status">Aguardando Unity Ads...</span></p>
-    <button onclick="mostrarRecompensa()">Assistir Vídeo (Recompensa)</button>
+    <button onclick="mostrarRecompensa()">Assistir Vídeo (Rewarded_Android)</button>
 
-    <!-- Espaço visual do Banner -->
     <div id="unity-banner-container">
         [ Banner Unity: Banner_Android ]
     </div>
@@ -42,19 +40,12 @@
 
         function initAds() {
             document.getElementById("status").innerText = "Unity Ads Inicializado!";
-            // Aqui o SDK nativo carrega o banner automaticamente na base da tela
-            carregarBanner();
-        }
-
-        function carregarBanner() {
-            console.log("Carregando Banner ID: " + BANNER_ID);
-            // O plugin nativo chama a função de Banner da Unity
         }
 
         setTimeout(initAds, 1500);
 
         function mostrarRecompensa() {
-            alert("Disparando anúncio premiado do Game ID: " + GAME_ID);
+            alert("Disparando Anúncio Premiado (" + REWARDED_ID + ") - Game ID: " + GAME_ID);
         }
     </script>
 </body>
